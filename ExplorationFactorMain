@@ -1,0 +1,108 @@
+clc
+clear
+
+docs=["optimisationFinal_expon_5","optimisationFinal_expon_11","optimisationFinal_expon_15","optimisationFinal_expon_19","optimisationFinal_nlevels5","optimisationFinal_nlevels11","optimisationFinal_nlevels15","optimisationFinal_nlevels21"];
+load(docs(1));
+
+storeExFac=[];
+
+%minMaxDiff=[min(XandYreformat,[],1);max(XandYreformat,[],1)];
+%minMaxDiff(3,:)=diff(minMaxDiff,[],1);
+%vol=prod(minMaxDiff(3,:));
+%finds the minima and maxima of the data set, and produces a volume based
+%on that. More useful is declaring a set volume based on variable bounds as
+%below
+
+upBounds=[1,0.3,2];
+lowBounds=[0,0,0];
+boundsDiff=upBounds-lowBounds;
+vol=boundsDiff(1)*boundsDiff(2)*boundsDiff(3);
+
+for doccount=[1:length(docs)]
+    load(sprintf("%s",docs(doccount)));
+    xDiffMat=[];
+    yDiffMat=[];
+    zDiffMat=[];
+    xyzDiff=[];
+    %the matrices holding differences between values on the same respective axes
+    
+    for n=[1:50]
+        count = n;
+        x1=XandYreformat(n,1);
+            while count<50
+                if count~=n
+                x2=XandYreformat(count,1);
+                xDiffMat(end+1)=x2-x1;
+                end
+            count=count+1;
+            end
+            while count==50
+                if count~=n
+                    x2=XandYreformat(end,1);
+                    xDiffMat(end+1)=x2-x1;
+                end
+                count=1;
+            end
+            while count<n 
+                x2=XandYreformat(count,1);
+                xDiffMat(end+1)=x2-x1;
+            count = count+1;
+            end
+    end
+
+    for n=[1:50]
+        count = n;
+        y1=XandYreformat(n,2);
+            while count<50
+                if count~=n
+                y2=XandYreformat(count,2);
+                yDiffMat(end+1)=y2-y1;
+                end
+            count=count+1;
+            end
+            while count==50
+                if count~=n
+                    y2=XandYreformat(end,2);
+                    yDiffMat(end+1)=y2-y1;
+                end
+                count=1;
+            end
+            while count<n 
+                y2=XandYreformat(count,2);
+                yDiffMat(end+1)=y2-y1;
+            count = count+1;
+            end
+    end
+
+    for n=[1:50]
+        count = n;
+        z1=XandYreformat(n,3);
+            while count<50
+                if count~=n
+                z2=XandYreformat(count,3);
+                zDiffMat(end+1)=z2-z1;
+                end
+            count=count+1;
+            end
+            while count==50
+                if count~=n
+                    z2=XandYreformat(end,3);
+                    zDiffMat(end+1)=z2-z1;
+                end
+                count=1;
+            end
+            while count<n 
+                z2=XandYreformat(count,3);
+                zDiffMat(end+1)=z2-z1;
+            count = count+1;
+            end
+    end
+
+        xyzDiff=[xDiffMat'.^2,yDiffMat'.^2,zDiffMat'.^2];
+        xyzDiff(:,4)=sum(xyzDiff,2);
+        xyzDiff(:,5)=xyzDiff(:,4).^0.5;
+        sumDist=sum(xyzDiff(:,5));
+        exFac=sumDist/vol;
+        disp(docs(doccount)+"'s exFac = " +exFac)
+        storeExFac(end+1)=exFac;
+end
